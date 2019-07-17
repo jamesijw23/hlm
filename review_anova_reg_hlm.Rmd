@@ -65,8 +65,165 @@ $$y_{ij} = \gamma_{00} + u_{0j} + e_{ij} $$
 - $e_{ij}$: Level-1 error
 
 
-```{r p1_model_0, echo=FALSE, message=FALSE, warning=FALSE}
-model_0 = aov(SCIENCE ~ GROUP, df)
-summary(model_0)
+```{r p1_model_1, echo=FALSE, message=FALSE, warning=FALSE}
+model_1 = aov(SCIENCE ~ GROUP, df)
+summary(model_1)
 ```
+
+
+
+
+```{r p1_model_2, echo=FALSE, message=FALSE, warning=FALSE}
+model_2 = lmer(SCIENCE ~ (1|GROUP),data = df)
+summary(model_2) 
+```
+
+
+
+
+
+
+```{r p1_means_comp_1, echo=FALSE, message=FALSE, warning=FALSE}
+## Create df of means
+means_model2 = data.frame(true_means = GROUP_means,
+                     ran_int_means = coef(model_2)$GROUP) 
+
+colnames(means_model2) = c('True_Means','Ran_Int_Means')
+## View Diff
+means_model2 %>%
+mutate(Diff = round(True_Means - Ran_Int_Means,3))
+```
+
+
+
+
+
+
+```{r view_variance_model2, echo=FALSE, message=FALSE, warning=FALSE}
+boxplot(resid(model_2) ~ GROUP, df, horizontal = T,
+        main = "Homogeneity of Variance Model 2")
+```
+
+
+
+### Model 3: Regression Model (*model_3*)
+
+$$y_{ij} = \beta_0 + \beta_1 x_{ij} + e_{ij} $$
+
+- $y_{ij}$: response variable
+- $\beta_0$: y-intercept coefficient
+- $\beta_1$: slope coefficient
+- $x_{ij}$: explanatory variable
+- $e_{ij}$: Level-1 error
+
+### Model 4:  Random Intercepts with Covariate (*model_4*)
+
+$$y_{ij} = \gamma_{00} + \gamma_{10} x_{ij} + u_{0j} + e_{ij} $$
+
+- $y_{ij}$: response variable
+- $\gamma_{00}$:  $y$-intercept or the expected value when the covariate is equal 0
+- $\gamma_{10}$: he expected change in the response variable ($y$) for every one unit change in the covariate
+- $x_{ij}$: explanatory variable
+- $u_{0j}$: Level-2 error
+- $e_{ij}$: Level-1 error
+
+```{r p2_model_3, echo=FALSE, message=FALSE, warning=FALSE}
+model_3 =   lm(SCIENCE ~ URBAN, df)
+summary(model_3)
+```
+
+
+
+
+```{r p2_model_4, echo=FALSE, message=FALSE, warning=FALSE}
+model_4 = lmer(SCIENCE ~ URBAN + (1|GROUP),data = df)
+summary(model_4) 
+```
+
+
+
+
+## Comparison Random Intercept vs. Random Intercepts with a Covariate
+
+```{r p2_model_fit_comp_2, echo=FALSE, message=FALSE, warning=FALSE}
+anova(model_2,model_4)
+```
+
+
+
+### Model 5:  Random Intercepts  and Slope with Covariate (*model_5*)
+
+$$y_{ij} = \gamma_{00} + \gamma_{10} x_{ij} + u_{0j} + u_{1j} + e_{ij} $$
+
+- $y_{ij}$: response variable
+- $\gamma_{00}$:  $y$-intercept or the expected value when the covariate is equal 0
+- $\gamma_{10}$: he expected change in the response variable ($y$) for every one unit change in the covariate
+- $x_{ij}$: explanatory variable
+- $u_{0j}$: Level-2 error
+- $u_{1j}$: Level-2 error Covariate
+- $e_{ij}$: Level-1 error
+
+
+
+### Model 6:  Random Intercepts and Slope with Covariate (*model_6*)
+
+$$y_{ij} = \gamma_{00} + \gamma_{10} x_{ij} +\gamma_{01} x_{.j} + u_{0j} + u_{1j} + e_{ij} $$
+
+- $y_{ij}$: response variable
+- $\gamma_{00}$:  $y$-intercept or the expected value when the covariate is equal 0
+- $\gamma_{10}$: he expected change in the response variable ($y$) for every one unit change in the covariate
+- $\gamma_{01}$: 
+- $x_{.j}$:
+- $x_{ij}$: explanatory variable
+- $u_{0j}$: Level-2 error
+- $u_{1j}$: Level-2 error Covariate
+- $e_{ij}$: Level-1 error
+
+
+
+```{r p3_model_5, echo=FALSE, message=FALSE, warning=FALSE}
+model_5 <- lmer(SCIENCE ~ URBAN + (URBAN | GROUP),data = df)
+summary(model_5)
+```
+
+
+
+
+```{r p3_model_6, echo=FALSE, message=FALSE, warning=FALSE}
+model_6 = lmer(SCIENCE ~ URBAN + SCH.RES + (URBAN |GROUP), data = df)
+## URBAN - x; SCIENCE - y; SCH.RES - Group x; GROUP - ID
+summary(model_6) 
+```
+
+
+
+## Comparison of All models
+```{r p3_model_fit_comp_3, echo=FALSE, message=FALSE, warning=FALSE}
+anova(model_2,model_4,model_5,model_6)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
