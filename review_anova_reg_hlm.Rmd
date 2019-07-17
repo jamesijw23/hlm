@@ -1,0 +1,72 @@
+---
+title: "HLM"
+author: "Dr. Immanuel Williams"
+date: "July 17, 2019"
+output: html_document
+---
+
+
+
+```{r p0_lib_data, message=FALSE, warning=FALSE, include=FALSE}
+## Library
+library(tidyverse)   ## Data Manipulation
+library(lme4)        ## Multilevel Model
+library(lmerTest)    ## Find p-values for lmer models
+library(kableExtra)
+
+## Data
+setwd('C:/Users/james/OneDrive/Documents/Important_Files/Old Projects/UTQ_Battey/Data Analysis/Attempt 25(new paper)/all_teachers_analysis')
+df = read.csv('sciach.csv')
+df$GROUP = as.factor(df$GROUP)
+```
+
+
+
+
+```{r p0_group_means, echo=FALSE, message=FALSE, warning=FALSE}
+GROUP_means = df %>%
+group_by(GROUP) %>%
+summarise(mean_group = mean(SCIENCE, na.rm = T)) %>%
+select(mean_group)
+
+GROUP_means %>%
+  kable() %>%
+  kable_styling(position = "center", full_width = F,bootstrap_options ="bordered")
+```
+
+
+### Model 1: Analysis of Variance Model (ANOVA)
+ANOVA (*model_1*):
+$$y_{ij} = \mu + \alpha_j + \epsilon_{ij} $$
+
+where $j = 1, ..., k$, $i = 1, ..., n_j$ and $N(0,\sigma^2)$
+
+- $y_{ij}$: response variable
+- $\mu$: Overall Mean
+- $\alpha_j$: $j$th mean
+- $\epsilon_{ij}$: error
+
+### Model 2: Multilevel Model - Random Intercepts
+The ANOVA Model can be be rexpressed as a Multilevel ANOVA. (*model_2*):
+
+This expression can be seen as a **Level-1** model:
+$$y_{ij} = \beta_{0j} + e_{ij} $$
+
+and **Level-2** model:
+$$\beta_{0j} = \gamma_{00} + u_{0j}$$
+
+All together:
+$$y_{ij} = \gamma_{00} + u_{0j} + e_{ij} $$
+
+
+- $y_{ij}$: response variable
+- $\gamma_{00}$:  $y$-intercept or the expected value when the covariate is equal 0
+- $u_{0j}$: Level-2 error
+- $e_{ij}$: Level-1 error
+
+
+```{r p1_model_0, echo=FALSE, message=FALSE, warning=FALSE}
+model_0 = aov(SCIENCE ~ GROUP, df)
+summary(model_0)
+```
+
